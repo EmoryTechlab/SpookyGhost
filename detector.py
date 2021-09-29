@@ -3,7 +3,7 @@ import mediapipe as mp
 
 class Detector():
     def __init__(self):
-        self.mp_face_detection = mp.solutions.face_detection
+        self.mp_pose = mp.solutions.pose
         self.mp_drawing = mp.solutions.drawing_utils
         self.cap = None
 
@@ -15,8 +15,8 @@ class Detector():
         if self.cap is not None:
             self.cap.release()
 
-    def getFace(self, show: bool) -> (bool, list):
-        with self.mp_face_detection.FaceDetection(min_detection_confidence=0.5) as face_detection:
+    def getFace(self, show: bool):
+        with self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
             if self.cap.isOpened():
                 success, image = self.cap.read()
                 if not success:
@@ -30,16 +30,9 @@ class Detector():
                 # To improve performance, optionally mark the image as not writeable to
                 # pass by reference.
                 image.flags.writeable = False
-                results = face_detection.process(image)
+                results = pose.process(image)
 
-                # Draw the face detection annotations on the image.
-                image.flags.writeable = True
-                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                if results:
+                    return True, results
+                return False
 
-                if results.detections:
-                    for detection in results.detections:
-                        self.mp_drawing.draw_detection(image, detection)
-                    if show:
-                        cv2.imshow('MediaPipe Face Detection', image)
-                        if cv2.waitKey(5) & 0xFF == 27:
-                            cv2.destroyAllWindows()
