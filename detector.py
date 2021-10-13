@@ -4,7 +4,7 @@ mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 
-DEBUG = False
+DEBUG = True
 
 class Detector():
     def __init__(self, width: int, height: int):
@@ -44,21 +44,27 @@ class Detector():
                         results.pose_landmarks,
                         mp_pose.POSE_CONNECTIONS,
                         landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+                left = None
+                right = None
                 if results is not None and results.pose_landmarks is not None:
                     left = results.pose_landmarks.landmark[8]
                     right = results.pose_landmarks.landmark[7]
                     if DEBUG:
                         cv2.circle(image, (int(left.x * self.width), int(left.y * self.height)), 10, (255, 0, 0))
                         cv2.circle(image, (int(right.x * self.width), int(right.y * self.height)), 10, (255, 0, 0))
-                    return True, ((left.x + right.x)/2, (left.y + right.y)/ 2)
 
                 if DEBUG:
                     cv2.imshow('MediaPipe Pose', image)
+                    if cv2.waitKey(5) & 0xFF == 27:
+                        return False, None
 
-                return True, None
+                if left is not None and right is not None:
+                    return True, ((left.x + right.x)/2, (left.y + right.y)/ 2)
+                else:
+                    return False, None
 
 if __name__ == "__main__":
-    detector = Detector()
+    detector = Detector(400, 400)
     detector.startCapture()
     while True:
         ok, results = detector.getPose()

@@ -4,10 +4,10 @@ Servo base;  // create servo object to control a servo
 Servo head;  // create servo object to control a servo 
 // a maximum of eight servo objects can be created 
 
-int pos1 = 0;    // variable to store the servo position 
-int pos2 = 0;    // variable to store the servo position 
-int currentPos1 = 0;
-int currentPos2 = 0;
+int pos1 = 90;    // variable to store the servo position 
+int pos2 = 90;    // variable to store the servo position 
+int currentPos1 = 9;
+int currentPos2 = 9;
 int vel = 1;
 int threshold = 10;
 
@@ -21,8 +21,8 @@ void setup()  {
   base.attach(9);  // attaches the servo on pin 9 to the servo object 
   head.attach(8);
   Serial.begin(9600);
-  base.write(0);
-  head.write(0);
+  base.write(90);
+  head.write(90);
 } 
 
 
@@ -32,7 +32,9 @@ void loop() {
   currentPos1 += vel * signum(pos1-currentPos1);
   currentPos2 += vel * signum(pos2-currentPos2);
   base.write(currentPos1);
-  head.write(currentPos2);
+
+  int mapped = map(currentPos2, 0, 180, 60, 130);
+  head.write(mapped);
 
 }
 
@@ -71,4 +73,3 @@ int signum(int num) {
   if (num >= 0) return 1;
   return -1;
 }
-
